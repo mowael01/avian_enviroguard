@@ -1,70 +1,63 @@
 import { ScrollView, Text, View, StyleSheet } from "react-native";
-import ReadingCircle from "@/components/ReadingCircle";
+
+import ReadingRow from "@/components/ReadingRow";
+
 export default function Index() {
   return (
     <ScrollView
-      contentContainerStyle={{
-        // flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        marginVertical: 20,
-      }}
-    >
+      style={{
+        padding: 10,
+      }}>
+      <View style={{ marginTop: 30 }}>
+        <Text
+          style={{
+            fontSize: 50,
+            fontWeight: "bold",
+            fontStyle: "italic",
+          }}>
+          Welcome
+        </Text>
+      </View>
       <View>
-        <View style={styles.general}>
-          <ReadingCircle value="10C" label="Humidity" />
-          <View>
-            <Text>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-              est tempora cupiditate magnam quaerat, beatae recusandae ipsam a?
-            </Text>
-          </View>
-        </View>
-        <View style={[styles.general, styles.contentLeft]}>
-          <ReadingCircle value="10C" label="Humidity" />
-          <View>
-            <Text>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-              est tempora cupiditate magnam quaerat, beatae recusandae ipsam a?
-            </Text>
-          </View>
-        </View>
-        <View style={styles.general}>
-          <ReadingCircle value="10C" label="Humidity" />
-          <View>
-            <Text>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-              est tempora cupiditate magnam quaerat, beatae recusandae ipsam a?
-            </Text>
-          </View>
-        </View>
-        <View style={[styles.general, styles.contentLeft]}>
-          <ReadingCircle value="10C" label="Humidity" />
-          <View>
-            <Text>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-              est tempora cupiditate magnam quaerat, beatae recusandae ipsam a?
-            </Text>
-          </View>
-        </View>
-        <View style={styles.general}>
-          <ReadingCircle value="10C" label="Humidity" />
-          <View>
-            <Text>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-              est tempora cupiditate magnam quaerat, beatae recusandae ipsam a?
-            </Text>
-          </View>
-        </View>
-        <View style={[styles.general, styles.contentLeft]}>
-          <ReadingCircle value="10C" label="Humidity" />
-          <View>
-            <Text>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-              est tempora cupiditate magnam quaerat, beatae recusandae ipsam a?
-            </Text>
-          </View>
-        </View>
+        <ReadingRow
+          description={"hello there from inside our application"}
+          lable="Temperature"
+          data={50.5}
+          targetPage="temperature"
+          unit="°C"
+          max={60}
+        />
+        <ReadingRow
+          description={"hello there from inside our application"}
+          lable="Humidity"
+          data={23.5}
+          targetPage="humidity"
+          unit="%"
+          max={100}
+        />
+        <ReadingRow
+          description={"hello there from inside our application"}
+          lable="Light"
+          data={23.5}
+          targetPage="light"
+          max={1000}
+        />
+        <ReadingRow
+          description={"hello there from inside our application"}
+          lable="Gas"
+          data={23.5}
+          targetPage="gas"
+          unit="%"
+          max={100}
+        />
+        <ReadingRow
+          description={"hello there from inside our application"}
+          lable="Sound"
+          data={23.5}
+          targetPage="sound"
+          unit="hz"
+          max={100}
+        />
       </View>
     </ScrollView>
   );
@@ -74,7 +67,6 @@ const styles = StyleSheet.create({
   contentLeft: {
     flexDirection: "row-reverse",
   },
-  contentRight: {},
   general: {
     width: "50%",
     display: "flex",

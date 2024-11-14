@@ -1,0 +1,67 @@
+Calibration Code:
+
+#include <Wire.h>
+
+const int sensorPin = 34; // Use the appropriate pin number
+const int numReadings = 100;
+
+float calibrateSensor() {
+  long sum = 0;
+
+  for (int i = 0; i < numReadings; i++) {
+    int sensorValue = analogRead(sensorPin);
+    Serial.print("Sensor Value: ");
+    Serial.println(sensorValue);
+    sum += sensorValue;
+    delay(50);
+  }
+
+  float avgSensorValue = sum / numReadings;
+
+  Serial.print("Average Sensor Value: ");
+  Serial.println(avgSensorValue);
+
+  float voltage = avgSensorValue * (3.3 / 4095.0);
+
+  Serial.print("Voltage: ");
+  Serial.println(voltage);
+
+  if (voltage == 0) {
+    Serial.println("Error: Voltage is zero, check sensor connection.");
+    return INFINITY;
+  }
+
+  float Rs = ((3.3 - voltage) / voltage) * 10;
+
+  return Rs;
+}
+
+void setup() {
+  Serial.begin(115200);
+  delay(2000);
+
+  Serial.println("Calibrating sensor...");
+  float R0 = calibrateSensor();
+  Serial.print("Calibration complete. R0 = ");
+  Serial.println(R0);
+}
+
+void loop() {
+  // Main loop can be used for further measurements or processing
+}
+
+
+
+
+void setup() {
+  Serial.begin(115200);
+  delay(2000);
+}
+
+void loop() {
+  int sensorValue = analogRead(35); // Ensure this is the correct pin
+  Serial.print("Raw Sensor Value: ");
+  Serial.println(sensorValue);
+  delay(1000);
+}
+
