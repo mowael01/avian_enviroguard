@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "CAP-21316",
+    "name": "Avian EnviroGuard",
     "slug": "CAP-21316",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#b6bdc3"
     },
     "ios": {
       "supportsTablet": true
@@ -18,20 +18,26 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#b6bdc3"
+      },
+      "package": "com.mo_wael.CAP21316"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router",
-      "expo-font"
-    ],
+    "plugins": ["expo-router", "expo-font"],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "4462692d-54c3-427e-a185-ed24293cd06f"
+      }
     }
   }
 }

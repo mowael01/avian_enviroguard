@@ -1,0 +1,16 @@
+// #include <Arduino.h>
+
+// #define MiCS 35
+
+// void setup(){
+//   Serial.begin(9600);
+
+//   pinMode(MiCS, INPUT);
+// }
+
+// void loop(){
+
+//   Serial.print("MiCS Value");
+//   Serial.println(analogRead(MiCS));
+//   delay(1000);
+// }

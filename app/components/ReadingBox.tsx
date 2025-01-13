@@ -1,4 +1,10 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import {
+  ExternalPathString,
+  Href,
+  Link,
+  RelativePathString,
+} from "expo-router";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function ReadingBox({
@@ -8,19 +14,18 @@ export default function ReadingBox({
   icon,
   color,
   boxStyle,
+  destination,
 }: {
   label: string;
-  value: number;
+  value: number | string;
   unit: string;
   icon: string;
   color: string;
+  destination: Href;
   boxStyle?: object;
 }) {
   return (
-    <TouchableOpacity
-      onPress={() => {}}
-      activeOpacity={0.5}
-      style={[styles.readingBox, boxStyle]}>
+    <View style={[styles.readingBox, boxStyle]}>
       <Ionicons
         // @ts-expect-error
         name={icon}
@@ -34,14 +39,22 @@ export default function ReadingBox({
         ]}
       />
       <View style={styles.readingTextContianer}>
-        <Text style={styles.readingLabel}>{label}</Text>
+        <Link href={destination}>
+          <Text style={styles.readingLabel}>{label}</Text>
+        </Link>
 
-        <Text style={[styles.readingValue, { color: color }]}>
-          {value}
-          {unit}
-        </Text>
+        <Link href={destination}>
+          <Text
+            style={[
+              styles.readingValue,
+              { color: color, fontSize: value.toString().length > 5 ? 20 : 30 },
+            ]}>
+            {value}
+            {unit}
+          </Text>
+        </Link>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 

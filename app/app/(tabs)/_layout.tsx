@@ -47,29 +47,18 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="light"
+          name="history"
           options={{
-            title: "Light",
+            title: "History",
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
-                name={focused ? "bulb" : "bulb-outline"}
+                name={focused ? "time" : "time-outline"}
                 color={color}
               />
             ),
           }}
         />
-        <Tabs.Screen
-          name="sound"
-          options={{
-            title: "Sound",
-            tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "mic" : "mic-outline"}
-                color={color}
-              />
-            ),
-          }}
-        />
+
         <Tabs.Screen
           name="humidity"
           options={{
