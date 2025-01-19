@@ -37,7 +37,7 @@ interface Recommendation {
   message: string;
 }
 
-function analyzeTemperature(
+export function analyzeTemperature(
   temperature: number,
   potentialDiseases: Disease[],
   recommendations: string[]
@@ -88,24 +88,20 @@ function analyzeTemperature(
 /**
  * Analyzes humidity and provides recommendations.
  */
-interface HumidityRecommendation {
-  message: string;
-}
 
-function analyzeHumidity(
+export function analyzeHumidity(
   humidity: number,
   potentialDiseases: Disease[],
-  recommendations: HumidityRecommendation[]
+  recommendations: string[]
 ): void {
   if (humidity < 40 || humidity > 70) {
-    recommendations.push({
-      message: `Humidity is outside the ideal range (40-70%). Current humidity: ${humidity}%.`,
-    });
+    recommendations.push(
+      `Humidity is outside the ideal range (40-70%). Current humidity: ${humidity}%.`
+    );
     if (humidity < 40) {
-      recommendations.push({
-        message:
-          "Low humidity can cause dry skin and respiratory irritation. Use a humidifier.",
-      });
+      recommendations.push(
+        "Low humidity can cause dry skin and respiratory irritation. Use a humidifier."
+      );
       addDisease(
         potentialDiseases,
         "Dry Skin/Feather Problems",
@@ -116,10 +112,9 @@ function analyzeHumidity(
         "https://www.beautyofbirds.com/featherplucking.html"
       );
     } else {
-      recommendations.push({
-        message:
-          "High humidity can promote bacterial and fungal growth. Ensure good ventilation and clean the cage regularly.",
-      });
+      recommendations.push(
+        "High humidity can promote bacterial and fungal growth. Ensure good ventilation and clean the cage regularly."
+      );
       addDisease(
         potentialDiseases,
         "Bacterial Infections",
@@ -146,12 +141,12 @@ function analyzeHumidity(
  * Analyzes ammonia levels and provides recommendations.
  */
 
-function analyzeAmmonia(
+export function analyzeAmmonia(
   ammonia: number,
   potentialDiseases: Disease[],
   recommendations: string[]
 ): void {
-  if (ammonia > 20) {
+  if (ammonia > 15) {
     recommendations.push(
       `Ammonia levels are high (${ammonia} ppm). This is extremely harmful. Improve ventilation and clean the cage.`
     );
@@ -206,21 +201,17 @@ function analyzeAmmonia(
 /**
  * Analyzes light conditions and provides recommendations.
  */
-interface LightRecommendation {
-  message: string;
-}
 
 function analyzeLight(
   light: string,
   isNight: boolean,
   potentialDiseases: Disease[],
-  recommendations: LightRecommendation[]
+  recommendations: string[]
 ): void {
   if (light === "on" && isNight) {
-    recommendations.push({
-      message:
-        "It is nighttime, and the light is on. Birds need a regular day/night cycle. Turn off the lights.",
-    });
+    recommendations.push(
+      "It is nighttime, and the light is on. Birds need a regular day/night cycle. Turn off the lights."
+    );
     addDisease(
       potentialDiseases,
       "Sleep Deprivation/Stress",
@@ -231,10 +222,9 @@ function analyzeLight(
       "https://lafeber.com/pet-birds/stress-in-pet-birds/"
     );
   } else if (light === "off" && !isNight) {
-    recommendations.push({
-      message:
-        "It is daytime, and the light is off. Birds need a regular day/night cycle. Turn on the lights.",
-    });
+    recommendations.push(
+      "It is daytime, and the light is off. Birds need a regular day/night cycle. Turn on the lights."
+    );
     addDisease(
       potentialDiseases,
       "Vitamin D Deficiency",
@@ -358,15 +348,10 @@ export function analyzeEnvironmentalConditions(
   const isNight = currentHour < 6 || currentHour > 19;
 
   analyzeTemperature(temperature, potentialDiseases, recommendations);
-  const humidityRecommendations: HumidityRecommendation[] = recommendations.map(
-    (message) => ({ message })
-  );
-  analyzeHumidity(humidity, potentialDiseases, humidityRecommendations);
+
+  analyzeHumidity(humidity, potentialDiseases, recommendations);
   analyzeAmmonia(ammonia, potentialDiseases, recommendations);
-  const lightRecommendations: LightRecommendation[] = recommendations.map(
-    (message) => ({ message })
-  );
-  analyzeLight(light, isNight, potentialDiseases, lightRecommendations);
+  analyzeLight(light, isNight, potentialDiseases, recommendations);
   analyzeSound(
     soundPower,
     soundFrequency,

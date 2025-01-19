@@ -32,20 +32,12 @@ import {
 import { Colors } from "@/constants/Colors";
 import { useEffect, useState } from "react";
 import React from "react";
-
+import {
+  analyzeTemperature,
+  Disease,
+} from "@/functions/environmentAnalyzation";
 import { supabase } from ".";
-
-const analyzeTemperature = (temperature: number) => {
-  if (temperature < 20) {
-    return "Temperature is too low. This can increase feed consumption, slow growth rates, and may cause stress to poultry.";
-  } else if (temperature >= 20 && temperature <= 25) {
-    return "Temperature is ideal for poultry. Optimal growth rates and feed efficiency are expected.";
-  } else if (temperature > 25 && temperature <= 30) {
-    return "Temperature is slightly high. Ensure proper ventilation to prevent mild heat stress.";
-  } else {
-    return "Temperature is dangerously high. Heat stress can reduce feed intake, growth, and egg production. Immediate cooling measures are essential.";
-  }
-};
+import SpecificNotes from "@/components/specificNotes";
 
 export default function Temperature() {
   const font = useFont(require("../../assets/fonts/SpaceMono-Regular.ttf"), 15);
@@ -131,9 +123,11 @@ export default function Temperature() {
             setNowData(await data);
             // console.log("activeBtn", activeBtn == "now");
             if (activeBtn == "now") {
-              const newGraphData = data.map((ele, index) => {
-                return { x: index, y: ele.temperature };
-              });
+              const newGraphData: { x: number; y: number }[] = data.map(
+                (ele: { temperature: number }, index: number) => {
+                  return { x: index, y: ele.temperature };
+                }
+              );
               // console.log("newGraphData", newGraphData);
 
               setGraphData(newGraphData);
@@ -225,12 +219,15 @@ export default function Temperature() {
         .select()
         .order("created_at", { ascending: false })
         .limit(10);
+      data.reverse();
       // console.log(data);
       setNowData(data);
       setActiveBtn("now");
-      const newGraphData = data.map((ele, index) => {
-        return { x: index, y: ele.temperature };
-      });
+      const newGraphData: { x: number; y: number }[] = data.map(
+        (ele: { temperature: number }, index: number) => {
+          return { x: index, y: ele.temperature };
+        }
+      );
       setGraphData(newGraphData);
       setGraphDomain({ y: [10, 60], x: [0, 10] });
       setGraphTickCount({ x: 10, y: 15 });
@@ -258,6 +255,7 @@ export default function Temperature() {
         .select()
         .order("day", { ascending: false })
         .limit(10);
+      data.reverse();
       // console.log(data);
       setWeekData(data);
     };
@@ -407,21 +405,11 @@ export default function Temperature() {
           </Text>
         </TouchableOpacity>
       </View>
-      <View>
-        <Text style={styles.textDetail}>
-          Avg Now Temperature:{" "}
-          {(
-            nowData.reduce((accumulator, current, index) => {
-              if (index === 0) {
-                return current.temperature;
-              } else {
-                return accumulator + current.temperature;
-              }
-            }, 0) / nowData.length
-          ).toFixed(2) + unit}
-          <Text>
-            {"\n"}
-            {analyzeTemperature(
+      <ScrollView style={{ height: 100 }}>
+        <View>
+          <Text style={styles.textDetail}>
+            Avg Now Temperature:{" "}
+            {(
               nowData.reduce((accumulator, current, index) => {
                 if (index === 0) {
                   return current.temperature;
@@ -429,82 +417,100 @@ export default function Temperature() {
                   return accumulator + current.temperature;
                 }
               }, 0) / nowData.length
-            )}
+            ).toFixed(2) + unit}
           </Text>
-        </Text>
-        <Text style={styles.textDetail}>
-          Avg Day Temperature:{" "}
-          {(
-            dayData.reduce((accumulator, current, index) => {
-              if (index === 0) {
-                return current.temperature;
-              } else {
-                return accumulator + current.temperature;
-              }
-            }, 0) / dayData.length
-          ).toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Maximum Day Temperature:{" "}
-          {dayData
-            .reduce((accumulator, current) => {
-              if (current.temperature > accumulator) {
-                return current.temperature;
-              } else {
-                return accumulator;
-              }
-            }, 0)
-            .toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Minimum Day Temperature:{" "}
-          {dayData
-            .reduce((accumulator, current) => {
-              if (current.temperature < accumulator) {
-                return current.temperature;
-              } else {
-                return accumulator;
-              }
-            }, 100)
-            .toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Avg Week Temperature:{" "}
-          {(
-            weekData.reduce((accumulator, current, index) => {
-              if (index === 0) {
-                return current.temperature;
-              } else {
-                return accumulator + current.temperature;
-              }
-            }, 0) / weekData.length
-          ).toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Maximum Week Temperature:{" "}
-          {weekData
-            .reduce((accumulator, current) => {
-              if (current.temperature > accumulator) {
-                return current.temperature;
-              } else {
-                return accumulator;
-              }
-            }, 0)
-            .toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Minimum Week Temperature:{" "}
-          {weekData
-            .reduce((accumulator, current) => {
-              if (current.temperature < accumulator) {
-                return current.temperature;
-              } else {
-                return accumulator;
-              }
-            }, 100)
-            .toFixed(2) + unit}
-        </Text>
-      </View>
+          <Text style={styles.textDetail}>
+            Avg Day Temperature:{" "}
+            {(
+              dayData.reduce((accumulator, current, index) => {
+                if (index === 0) {
+                  return current.temperature;
+                } else {
+                  return accumulator + current.temperature;
+                }
+              }, 0) / dayData.length
+            ).toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Maximum Day Temperature:{" "}
+            {dayData
+              .reduce((accumulator, current) => {
+                if (current.temperature > accumulator) {
+                  return current.temperature;
+                } else {
+                  return accumulator;
+                }
+              }, 0)
+              .toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Minimum Day Temperature:{" "}
+            {dayData
+              .reduce((accumulator, current) => {
+                if (current.temperature < accumulator) {
+                  return current.temperature;
+                } else {
+                  return accumulator;
+                }
+              }, 100)
+              .toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Avg Week Temperature:{" "}
+            {(
+              weekData.reduce((accumulator, current, index) => {
+                if (index === 0) {
+                  return current.temperature;
+                } else {
+                  return accumulator + current.temperature;
+                }
+              }, 0) / weekData.length
+            ).toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Maximum Week Temperature:{" "}
+            {weekData
+              .reduce((accumulator, current) => {
+                if (current.temperature > accumulator) {
+                  return current.temperature;
+                } else {
+                  return accumulator;
+                }
+              }, 0)
+              .toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Minimum Week Temperature:{" "}
+            {weekData
+              .reduce((accumulator, current) => {
+                if (current.temperature < accumulator) {
+                  return current.temperature;
+                } else {
+                  return accumulator;
+                }
+              }, 100)
+              .toFixed(2) + unit}
+          </Text>
+        </View>
+        <View style={{ padding: 10 }}>
+          <Text style={{ color: "white", fontSize: 30 }}>Notes: </Text>
+          <SpecificNotes
+            results={(() => {
+              let recommendations: string[] = [];
+              let potentialDiseases: Disease[] = [];
+
+              analyzeTemperature(
+                nowData[nowData.length - 1].temperature,
+                potentialDiseases,
+                recommendations
+              );
+              console.log("recommendations", recommendations);
+
+              return { recommendations, potentialDiseases };
+            })()}
+          />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

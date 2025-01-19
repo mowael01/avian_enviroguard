@@ -1,34 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import {
-  analyzeEnvironmentalConditions,
-  AnalysisResult,
-} from "@/functions/environmentAnalyzation";
+import { AnalysisResult } from "@/functions/environmentAnalyzation";
 import Collapsible from "./collabsible";
 import OpenURLButton from "./openUrl";
 
-interface NotesProps {
-  data: {
-    temperature: number;
-    humidity: number;
-    ammonia: number;
-    light: string;
-    soundPower: number;
-    soundFrequency: number;
-  };
-}
-
-const Notes: React.FC<NotesProps> = ({
-  data: { temperature, humidity, ammonia, light, soundPower, soundFrequency },
-}) => {
-  const conditions: AnalysisResult = analyzeEnvironmentalConditions(
-    temperature,
-    humidity,
-    ammonia,
-    light,
-    soundPower,
-    soundFrequency
-  );
+const SpecificNotes = ({ results }: { results: AnalysisResult }) => {
+  const conditions = results;
 
   return (
     <View style={styles.container}>
@@ -85,4 +62,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Notes;
+export default SpecificNotes;

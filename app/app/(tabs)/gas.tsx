@@ -1,5 +1,3 @@
-import { Styles } from "@/constants/Styles";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   StyleSheet,
   Text,
@@ -34,18 +32,21 @@ import { useEffect, useState } from "react";
 import React from "react";
 
 import { supabase } from ".";
+import SpecificNotes from "@/components/specificNotes";
+import { analyzeAmmonia } from "@/functions/environmentAnalyzation";
+import { Disease } from "@/functions/environmentAnalyzation";
 
-const analyzeAmmonia = (ammonia: number) => {
-  if (ammonia < 10) {
-    return "Ammonia levels are safe. Poultry health and performance are optimal.";
-  } else if (ammonia >= 10 && ammonia <= 25) {
-    return "Ammonia levels are moderately high. Prolonged exposure can reduce feed intake and growth performance. Increase ventilation.";
-  } else if (ammonia > 25 && ammonia <= 50) {
-    return "Ammonia levels are high. Growth rates, immune responses, and respiratory health are negatively affected.";
-  } else {
-    return "Ammonia levels are dangerously high. Immediate intervention is required to avoid severe health and performance issues.";
-  }
-};
+// const analyzeAmmonia = (ammonia: number) => {
+//   if (ammonia < 10) {
+//     return "Ammonia levels are safe. Poultry health and performance are optimal.";
+//   } else if (ammonia >= 10 && ammonia <= 25) {
+//     return "Ammonia levels are moderately high. Prolonged exposure can reduce feed intake and growth performance. Increase ventilation.";
+//   } else if (ammonia > 25 && ammonia <= 50) {
+//     return "Ammonia levels are high. Growth rates, immune responses, and respiratory health are negatively affected.";
+//   } else {
+//     return "Ammonia levels are dangerously high. Immediate intervention is required to avoid severe health and performance issues.";
+//   }
+// };
 
 export default function Gas() {
   const font = useFont(require("../../assets/fonts/SpaceMono-Regular.ttf"), 15);
@@ -73,7 +74,7 @@ export default function Gas() {
   const [dayData, setDayData] = useState(
     Array.from({ length: 10 }, () => ({
       id: 0,
-      created_at: "0",
+      hour: "0",
       temperature: 0,
       humidity: 0,
       NH3: 0,
@@ -85,7 +86,7 @@ export default function Gas() {
   const [weekData, setWeekData] = useState(
     Array.from({ length: 10 }, () => ({
       id: 0,
-      created_at: "0",
+      day: "0",
       temperature: 0,
       humidity: 0,
       NH3: 0,
@@ -127,13 +128,16 @@ export default function Gas() {
               .order("created_at", { ascending: false })
               .limit(10);
             data.reverse();
+
             // console.log("nowData",data);
-            setNowData(await data);
+            setNowData(data);
             // console.log("activeBtn", activeBtn == "now");
             if (activeBtn == "now") {
-              const newGraphData = data.map((ele, index) => {
-                return { x: index, y: ele.NH3 };
-              });
+              const newGraphData: { x: number; y: number }[] = data.map(
+                (ele: { NH3: number }, index: number) => {
+                  return { x: index, y: ele.NH3 };
+                }
+              );
               // console.log("newGraphData", newGraphData);
 
               setGraphData(newGraphData);
@@ -218,6 +222,7 @@ export default function Gas() {
     };
   }, []);
 
+  // getting the data for the first time
   useEffect(() => {
     const getData = async () => {
       const { data, error }: any = await supabase
@@ -228,9 +233,11 @@ export default function Gas() {
       // console.log(data);
       setNowData(data);
       setActiveBtn("now");
-      const newGraphData = data.map((ele, index) => {
-        return { x: index, y: ele.NH3 };
-      });
+      const newGraphData: { x: number; y: number }[] = data.map(
+        (ele: { NH3: number }, index: number) => {
+          return { x: index, y: ele.NH3 };
+        }
+      );
       setGraphData(newGraphData);
       setGraphDomain({ y: [0, 100], x: [0, 10] });
       setGraphTickCount({ x: 10, y: 10 });
@@ -407,21 +414,11 @@ export default function Gas() {
           </Text>
         </TouchableOpacity>
       </View>
-      <View>
-        <Text style={styles.textDetail}>
-          Avg Now Ammonia:{" "}
-          {(
-            nowData.reduce((accumulator, current, index) => {
-              if (index === 0) {
-                return current.NH3;
-              } else {
-                return accumulator + current.NH3;
-              }
-            }, 0) / nowData.length
-          ).toFixed(2) + unit}
-          <Text>
-            {"\n"}
-            {analyzeAmmonia(
+      <ScrollView style={{ height: 100 }}>
+        <View>
+          <Text style={styles.textDetail}>
+            Avg Now Ammonia:{" "}
+            {(
               nowData.reduce((accumulator, current, index) => {
                 if (index === 0) {
                   return current.NH3;
@@ -429,82 +426,100 @@ export default function Gas() {
                   return accumulator + current.NH3;
                 }
               }, 0) / nowData.length
-            )}
+            ).toFixed(2) + unit}
           </Text>
-        </Text>
-        <Text style={styles.textDetail}>
-          Avg Day Ammonia:{" "}
-          {(
-            dayData.reduce((accumulator, current, index) => {
-              if (index === 0) {
-                return current.NH3;
-              } else {
-                return accumulator + current.NH3;
-              }
-            }, 0) / dayData.length
-          ).toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Maximum Day Ammonia:{" "}
-          {dayData
-            .reduce((accumulator, current) => {
-              if (current.NH3 > accumulator) {
-                return current.NH3;
-              } else {
-                return accumulator;
-              }
-            }, 0)
-            .toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Minimum Day Ammonia:{" "}
-          {dayData
-            .reduce((accumulator, current) => {
-              if (current.NH3 < accumulator) {
-                return current.NH3;
-              } else {
-                return accumulator;
-              }
-            }, 100)
-            .toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Avg Week Ammonia:{" "}
-          {(
-            weekData.reduce((accumulator, current, index) => {
-              if (index === 0) {
-                return current.NH3;
-              } else {
-                return accumulator + current.NH3;
-              }
-            }, 0) / weekData.length
-          ).toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Maximum Week Ammonia:{" "}
-          {weekData
-            .reduce((accumulator, current) => {
-              if (current.NH3 > accumulator) {
-                return current.NH3;
-              } else {
-                return accumulator;
-              }
-            }, 0)
-            .toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Minimum Week Ammonia:{" "}
-          {weekData
-            .reduce((accumulator, current) => {
-              if (current.NH3 < accumulator) {
-                return current.NH3;
-              } else {
-                return accumulator;
-              }
-            }, 100)
-            .toFixed(2) + unit}
-        </Text>
-      </View>
+          <Text style={styles.textDetail}>
+            Avg Day Ammonia:{" "}
+            {(
+              dayData.reduce((accumulator, current, index) => {
+                if (index === 0) {
+                  return current.NH3;
+                } else {
+                  return accumulator + current.NH3;
+                }
+              }, 0) / dayData.length
+            ).toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Maximum Day Ammonia:{" "}
+            {dayData
+              .reduce((accumulator, current) => {
+                if (current.NH3 > accumulator) {
+                  return current.NH3;
+                } else {
+                  return accumulator;
+                }
+              }, 0)
+              .toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Minimum Day Ammonia:{" "}
+            {dayData
+              .reduce((accumulator, current) => {
+                if (current.NH3 < accumulator) {
+                  return current.NH3;
+                } else {
+                  return accumulator;
+                }
+              }, 100)
+              .toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Avg Week Ammonia:{" "}
+            {(
+              weekData.reduce((accumulator, current, index) => {
+                if (index === 0) {
+                  return current.NH3;
+                } else {
+                  return accumulator + current.NH3;
+                }
+              }, 0) / weekData.length
+            ).toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Maximum Week Ammonia:{" "}
+            {weekData
+              .reduce((accumulator, current) => {
+                if (current.NH3 > accumulator) {
+                  return current.NH3;
+                } else {
+                  return accumulator;
+                }
+              }, 0)
+              .toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Minimum Week Ammonia:{" "}
+            {weekData
+              .reduce((accumulator, current) => {
+                if (current.NH3 < accumulator) {
+                  return current.NH3;
+                } else {
+                  return accumulator;
+                }
+              }, 100)
+              .toFixed(2) + unit}
+          </Text>
+        </View>
+        <View style={{ padding: 10 }}>
+          <Text style={{ color: "white", fontSize: 30 }}>Notes: </Text>
+          <SpecificNotes
+            results={(() => {
+              let recommendations: string[] = [];
+              let potentialDiseases: Disease[] = [];
+
+              analyzeAmmonia(
+                nowData[nowData.length - 1].NH3,
+                potentialDiseases,
+                recommendations
+              );
+              console.log("recommendations", recommendations);
+
+              return { recommendations, potentialDiseases };
+            })()}
+          />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

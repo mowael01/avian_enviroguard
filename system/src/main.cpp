@@ -40,8 +40,8 @@ String SettingsTable = "settings"; // the table where the settings will be fetch
 String JSON = "";                  // JSON String
 
 // Wifi-Credentials
-#define WIFI_SSID "hi"           //  WiFi SSID
-#define WIFI_PASSWORD "cave1234" //  WiFi password
+#define WIFI_SSID "Avian"          //  WiFi SSID
+#define WIFI_PASSWORD "Avian-2025" //  WiFi password
 
 // millis variable used for asynchronous code
 unsigned long startMillis = millis(); // Start of sample window
@@ -286,6 +286,8 @@ void setup()
     Serial.print(".");
   }
   Serial.println("Connected to WiFi");
+
+  delay(1000);
 
   // AM2320 sensor
   am2320.begin();

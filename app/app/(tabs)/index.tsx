@@ -31,7 +31,7 @@ import Constants from "expo-constants";
 import { createClient } from "@supabase/supabase-js";
 import { analyzeEnvironmentalConditions } from "@/functions/environmentAnalyzation";
 import Notes from "@/components/notes";
-
+import { getLight, getSoundCategory, formatDate } from "@/functions/utils";
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -44,39 +44,6 @@ export const supabase = createClient(
   "https://plrcyvdofiqbtdezzdnl.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBscmN5dmRvZmlxYnRkZXp6ZG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE2NzM0MDUsImV4cCI6MjA0NzI0OTQwNX0.X2Fs_Q4EzPj-b5PTm0_DtrTtxTupJMottl-o85IeVc8"
 );
-
-function getSoundCategory(sound: number, freuquqncy: number) {
-  if (sound > 1 || freuquqncy > 500) {
-    return "High Sound";
-  } else if (sound > 0.5) {
-    return "Moderate Sound";
-  } else {
-    return "No sound";
-  }
-}
-
-function getLight(light: number) {
-  if (light > 1000) {
-    return "On";
-  } else {
-    return "Off";
-  }
-}
-
-function formatDate(date: Date) {
-  const day = String(date.getDate()).padStart(2, "0"); // Day with two digits
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Month with two digits
-  const year = date.getFullYear(); // Full year
-
-  let hours = date.getHours(); // Get hours
-  const minutes = String(date.getMinutes()).padStart(2, "0"); // Get minutes and pad
-  const ampm = hours >= 12 ? "PM" : "AM"; // Determine AM/PM
-
-  hours = hours % 12 || 12; // Convert to 12-hour format and handle midnight (0)
-  const time = `${hours}:${minutes} ${ampm}`; // Format time as hh:mm AM/PM
-
-  return `${day}/${month}/${year} ${time}`; // Combine date and time
-}
 
 export default function Index() {
   const [expoPushToken, setExpoPushToken] = useState("");
@@ -133,7 +100,7 @@ export default function Index() {
       NH3: 0,
       soundFrequency: 0,
       soundPower: 0,
-      light: 0,
+      light: false,
     }))
   );
   const [dayData, setDayData] = useState(
@@ -145,7 +112,7 @@ export default function Index() {
       NH3: 0,
       soundFrequency: 0,
       soundPower: 0,
-      light: 0,
+      light: false,
     }))
   );
   const [weekData, setWeekData] = useState(
@@ -436,7 +403,7 @@ export default function Index() {
               />
               <ReadingBox
                 label="Light"
-                value={getLight(nowData.at(0)?.light ?? 0)}
+                value={getLight(nowData.at(0)?.light ?? false)}
                 unit=""
                 icon="sunny"
                 destination="/(tabs)/gas"
@@ -457,7 +424,7 @@ export default function Index() {
               <ReadingBox
                 label="Ammonia"
                 value={nowData.at(0)?.NH3 || 0}
-                unit="%"
+                unit="ppm"
                 icon="flame"
                 color="#44d586"
                 destination="/(tabs)/gas"
@@ -488,7 +455,16 @@ export default function Index() {
           </View>
           <View>
             <Text style={styles.newSectionTitle}>Notes:</Text>
-            <Notes />
+            <Notes
+              data={{
+                temperature: dayData.at(0)?.temperature || 0,
+                humidity: dayData.at(0)?.humidity || 0,
+                ammonia: dayData.at(0)?.NH3 || 0,
+                light: getLight(dayData.at(0)?.light || false),
+                soundPower: dayData.at(0)?.soundPower || 0,
+                soundFrequency: dayData.at(0)?.soundFrequency || 0,
+              }}
+            />
           </View>
           <View>
             <Text style={styles.newSectionTitle}>Environmental Records</Text>
@@ -514,7 +490,7 @@ export default function Index() {
                 humidity={value.humidity}
                 NH3={value.NH3}
                 sound={getSoundCategory(value.soundPower, value.soundFrequency)}
-                light={getLight(value.light)}
+                light={value.light == true ? "on" : "off"}
                 safe={true}
                 date={formatDate(new Date(value.hour || 0))}
               />

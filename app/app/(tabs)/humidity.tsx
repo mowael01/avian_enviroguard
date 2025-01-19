@@ -1,5 +1,3 @@
-import { Styles } from "@/constants/Styles";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   StyleSheet,
   Text,
@@ -35,17 +33,9 @@ import React from "react";
 
 import { supabase } from ".";
 
-const analyzeHumidity = (humidity: number) => {
-  if (humidity < 40) {
-    return "Humidity is too low. This can cause respiratory irritation and increase dust levels.";
-  } else if (humidity >= 40 && humidity <= 60) {
-    return "Humidity is in the ideal range, providing a comfortable environment for poultry.";
-  } else if (humidity > 60 && humidity <= 70) {
-    return "Humidity is slightly high. Increased ventilation can help prevent litter moisture buildup and ammonia formation.";
-  } else {
-    return "Humidity is too high. Excess moisture can promote bacterial growth, ammonia production, and respiratory issues.";
-  }
-};
+import { analyzeHumidity } from "@/functions/environmentAnalyzation";
+import { Disease } from "@/functions/environmentAnalyzation";
+import SpecificNotes from "@/components/specificNotes";
 
 export default function Humidity() {
   const font = useFont(require("../../assets/fonts/SpaceMono-Regular.ttf"), 15);
@@ -131,9 +121,11 @@ export default function Humidity() {
             setNowData(await data);
             // console.log("activeBtn", activeBtn == "now");
             if (activeBtn == "now") {
-              const newGraphData = data.map((ele, index) => {
-                return { x: index, y: ele.humidity };
-              });
+              const newGraphData: { x: number; y: number }[] = data.map(
+                (ele: { humidity: number }, index: number) => {
+                  return { x: index, y: ele.humidity };
+                }
+              );
               // console.log("newGraphData", newGraphData);
 
               setGraphData(newGraphData);
@@ -225,12 +217,15 @@ export default function Humidity() {
         .select()
         .order("created_at", { ascending: false })
         .limit(10);
-      // console.log(data);
+      console.log("now data", data);
+
       setNowData(data);
       setActiveBtn("now");
-      const newGraphData = data.map((ele, index) => {
-        return { x: index, y: ele.humidity };
-      });
+      const newGraphData: { x: number; y: number }[] = data.map(
+        (ele: { humidity: number }, index: number) => {
+          return { x: index, y: ele.humidity };
+        }
+      );
       setGraphData(newGraphData);
       setGraphDomain({ y: [0, 100], x: [0, 10] });
       setGraphTickCount({ x: 10, y: 10 });
@@ -246,7 +241,7 @@ export default function Humidity() {
         .order("hour", { ascending: false })
         .limit(10);
       console.log("dayData", data);
-      data.reverse();
+      // data.reverse();
       setDayData(data);
     };
     getData();
@@ -407,21 +402,11 @@ export default function Humidity() {
           </Text>
         </TouchableOpacity>
       </View>
-      <View>
-        <Text style={styles.textDetail}>
-          Avg Now Humidity:{" "}
-          {(
-            nowData.reduce((accumulator, current, index) => {
-              if (index === 0) {
-                return current.humidity;
-              } else {
-                return accumulator + current.humidity;
-              }
-            }, 0) / nowData.length
-          ).toFixed(2) + unit}
-          <Text>
-            {"\n"}
-            {analyzeHumidity(
+      <ScrollView style={{ height: 100 }}>
+        <View>
+          <Text style={styles.textDetail}>
+            Avg Now Humidity:{" "}
+            {(
               nowData.reduce((accumulator, current, index) => {
                 if (index === 0) {
                   return current.humidity;
@@ -429,82 +414,100 @@ export default function Humidity() {
                   return accumulator + current.humidity;
                 }
               }, 0) / nowData.length
-            )}
+            ).toFixed(2) + unit}
           </Text>
-        </Text>
-        <Text style={styles.textDetail}>
-          Avg Day Humidity:{" "}
-          {(
-            dayData.reduce((accumulator, current, index) => {
-              if (index === 0) {
-                return current.humidity;
-              } else {
-                return accumulator + current.humidity;
-              }
-            }, 0) / dayData.length
-          ).toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Maximum Day Humidity:{" "}
-          {dayData
-            .reduce((accumulator, current) => {
-              if (current.humidity > accumulator) {
-                return current.humidity;
-              } else {
-                return accumulator;
-              }
-            }, 0)
-            .toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Minimum Day Humidity:{" "}
-          {dayData
-            .reduce((accumulator, current) => {
-              if (current.humidity < accumulator) {
-                return current.humidity;
-              } else {
-                return accumulator;
-              }
-            }, 100)
-            .toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Avg Week Humidity:{" "}
-          {(
-            weekData.reduce((accumulator, current, index) => {
-              if (index === 0) {
-                return current.humidity;
-              } else {
-                return accumulator + current.humidity;
-              }
-            }, 0) / weekData.length
-          ).toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Maximum Week Humidity:{" "}
-          {weekData
-            .reduce((accumulator, current) => {
-              if (current.humidity > accumulator) {
-                return current.humidity;
-              } else {
-                return accumulator;
-              }
-            }, 0)
-            .toFixed(2) + unit}
-        </Text>
-        <Text style={styles.textDetail}>
-          Minimum Week Humidity:{" "}
-          {weekData
-            .reduce((accumulator, current) => {
-              if (current.humidity < accumulator) {
-                return current.humidity;
-              } else {
-                return accumulator;
-              }
-            }, 100)
-            .toFixed(2) + unit}
-        </Text>
-      </View>
+          <Text style={styles.textDetail}>
+            Avg Day Humidity:{" "}
+            {(
+              dayData.reduce((accumulator, current, index) => {
+                if (index === 0) {
+                  return current.humidity;
+                } else {
+                  return accumulator + current.humidity;
+                }
+              }, 0) / dayData.length
+            ).toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Maximum Day Humidity:{" "}
+            {dayData
+              .reduce((accumulator, current) => {
+                if (current.humidity > accumulator) {
+                  return current.humidity;
+                } else {
+                  return accumulator;
+                }
+              }, 0)
+              .toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Minimum Day Humidity:{" "}
+            {dayData
+              .reduce((accumulator, current) => {
+                if (current.humidity < accumulator) {
+                  return current.humidity;
+                } else {
+                  return accumulator;
+                }
+              }, 100)
+              .toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Avg Week Humidity:{" "}
+            {(
+              weekData.reduce((accumulator, current, index) => {
+                if (index === 0) {
+                  return current.humidity;
+                } else {
+                  return accumulator + current.humidity;
+                }
+              }, 0) / weekData.length
+            ).toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Maximum Week Humidity:{" "}
+            {weekData
+              .reduce((accumulator, current) => {
+                if (current.humidity > accumulator) {
+                  return current.humidity;
+                } else {
+                  return accumulator;
+                }
+              }, 0)
+              .toFixed(2) + unit}
+          </Text>
+          <Text style={styles.textDetail}>
+            Minimum Week Humidity:{" "}
+            {weekData
+              .reduce((accumulator, current) => {
+                if (current.humidity < accumulator) {
+                  return current.humidity;
+                } else {
+                  return accumulator;
+                }
+              }, 100)
+              .toFixed(2) + unit}
+          </Text>
+        </View>
+        <View style={{ padding: 10 }}>
+          <Text style={{ color: "white", fontSize: 30 }}>Notes: </Text>
+          <SpecificNotes
+            results={(() => {
+              let recommendations: string[] = [];
+              let potentialDiseases: Disease[] = [];
+
+              analyzeHumidity(
+                nowData[nowData.length - 1].humidity,
+                potentialDiseases,
+                recommendations
+              );
+              console.log("recommendations", recommendations);
+
+              return { recommendations, potentialDiseases };
+            })()}
+          />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
