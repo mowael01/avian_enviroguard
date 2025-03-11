@@ -81,7 +81,7 @@ bool light = false;
 unsigned long previousLoopMillis = 0, previousBuzzerMillis = 0;
 
 // Readings Interval
-#define ReadingsInterval 25000 // 5000
+#define ReadingsInterval 5000 // 5000
 
 // --------------- < End Definitions > --------------- //
 // --------------- < Start Functions > --------------- //
@@ -295,33 +295,6 @@ void setup()
   // Connect to Supabase
   db.begin(supabase_url, anon_key);
 
-  // get the thresholds from the database
-  // temperatureMaxThreshold = db.from(SettingsTable).select("temperature_max_threshold").limit(1).doSelect().toInt();
-  // db.urlQuery_reset();
-  // temperatureMinThreshold = db.from(SettingsTable).select("temperature_threshold").eq("id", "1").doSelect().toInt();
-  // db.urlQuery_reset();
-  // humidityMaxThreshold = db.from(SettingsTable).select("humidity_threshold").eq("id", "1").doSelect().toInt();
-  // db.urlQuery_reset();
-  // humidityMinThreshold = db.from(SettingsTable).select("humidity_threshold").eq("id", "1").doSelect().toInt();
-  // db.urlQuery_reset();
-  // NH3Threshold = db.from(SettingsTable).select("NH3_threshold").eq("id", "1::real").doSelect().toInt();
-  // db.urlQuery_reset();
-
-  // // print all thresholds
-  // Serial.print("Temperature Max Threshold: ");
-  // Serial.println(temperatureMaxThreshold);
-  // Serial.print("Temperature Min Threshold: ");
-  // Serial.println(temperatureMinThreshold);
-  // Serial.print("Humidity Max Threshold: ");
-  // Serial.println(humidityMaxThreshold);
-  // Serial.print("Humidity Min Threshold: ");
-  // Serial.println(humidityMinThreshold);
-  // Serial.print("NH3 Threshold: ");
-  // Serial.println(NH3Threshold);
-  // Serial.print("Sound Power Threshold: ");
-  // Serial.println(soundIntensityThreshold);
-  // Serial.print("sound frequency threshold: ");
-  // Serial.println(soundFrequencyThreshold);
 
   digitalWrite(ESP_LED, HIGH);
   delay(100);
